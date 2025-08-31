@@ -3,7 +3,7 @@ function UserProfile(props) {
     <div className="user-profile">
       <h2>{props.name}</h2>
       <p>Age: {props.age}</p>
-      <p>{props.bio}</p>
+      <p>Bio: {props.bio}</p>
     </div>
   );
 }
