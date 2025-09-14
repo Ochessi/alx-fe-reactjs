@@ -9,9 +9,12 @@ const RecipeDetails = () => {
   const navigate = useNavigate();
   const [isEditing, setIsEditing] = useState(false);
   
-  const recipe = useRecipeStore(state =>
-    state.recipes.find(recipe => recipe.id === parseInt(id))
-  );
+  const { recipe, favorites, addFavorite, removeFavorite } = useRecipeStore(state => ({
+    recipe: state.recipes.find(recipe => recipe.id === parseInt(id)),
+    favorites: state.favorites,
+    addFavorite: state.addFavorite,
+    removeFavorite: state.removeFavorite
+  }));
 
   if (!recipe) {
     return (
@@ -41,6 +44,14 @@ const RecipeDetails = () => {
 
   const handleDeleteSuccess = () => {
     navigate('/');
+  };
+
+  const handleToggleFavorite = () => {
+    if (favorites.includes(recipe.id)) {
+      removeFavorite(recipe.id);
+    } else {
+      addFavorite(recipe.id);
+    }
   };
 
   return (
@@ -86,25 +97,44 @@ const RecipeDetails = () => {
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+          <div style={{ display: 'flex', gap: '10px', justifyContent: 'space-between', alignItems: 'center' }}>
             <button
-              onClick={handleEditToggle}
+              onClick={handleToggleFavorite}
               style={{
                 padding: '10px 20px',
-                backgroundColor: '#28a745',
+                backgroundColor: favorites.includes(recipe.id) ? '#dc3545' : '#28a745',
                 color: 'white',
                 border: 'none',
                 borderRadius: '4px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
               }}
             >
-              Edit Recipe
+              {favorites.includes(recipe.id) ? '💔 Remove from Favorites' : '❤️ Add to Favorites'}
             </button>
             
-            <DeleteRecipeButton 
-              recipeId={recipe.id} 
-              onDeleteSuccess={handleDeleteSuccess}
-            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <button
+                onClick={handleEditToggle}
+                style={{
+                  padding: '10px 20px',
+                  backgroundColor: '#28a745',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer'
+                }}
+              >
+                Edit Recipe
+              </button>
+              
+              <DeleteRecipeButton 
+                recipeId={recipe.id} 
+                onDeleteSuccess={handleDeleteSuccess}
+              />
+            </div>
           </div>
         </div>
       )}

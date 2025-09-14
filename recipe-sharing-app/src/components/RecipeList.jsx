@@ -3,16 +3,27 @@ import { useEffect } from 'react';
 import useRecipeStore from './recipeStore';
 
 const RecipeList = () => {
-  const { filteredRecipes, searchTerm, initializeFilters } = useRecipeStore(state => ({
+  const { filteredRecipes, searchTerm, initializeFilters, favorites, addFavorite, removeFavorite } = useRecipeStore(state => ({
     filteredRecipes: state.filteredRecipes,
     searchTerm: state.searchTerm,
-    initializeFilters: state.initializeFilters
+    initializeFilters: state.initializeFilters,
+    favorites: state.favorites,
+    addFavorite: state.addFavorite,
+    removeFavorite: state.removeFavorite
   }));
 
   // Initialize filtered recipes on component mount
   useEffect(() => {
     initializeFilters();
   }, [initializeFilters]);
+
+  const handleToggleFavorite = (recipeId) => {
+    if (favorites.includes(recipeId)) {
+      removeFavorite(recipeId);
+    } else {
+      addFavorite(recipeId);
+    }
+  };
 
   return (
     <div>
@@ -56,31 +67,51 @@ const RecipeList = () => {
             <p style={{ 
               margin: '0 0 15px 0', 
               color: '#666',
-              lineHeight: '1.5',
-              display: '-webkit-box',
-              WebkitLineClamp: 3,
-              WebkitBoxOrient: 'vertical',
-              overflow: 'hidden'
+              lineHeight: '1.5'
             }}>
               {recipe.description}
             </p>
-            <Link 
-              to={`/recipe/${recipe.id}`}
-              style={{
-                display: 'inline-block',
-                padding: '8px 16px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                textDecoration: 'none',
-                borderRadius: '4px',
-                fontSize: '14px',
-                transition: 'background-color 0.2s'
-              }}
-              onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
-              onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
-            >
-              View Details →
-            </Link>
+            <div style={{ display: 'flex', gap: '10px', alignItems: 'center', justifyContent: 'space-between' }}>
+              <Link 
+                to={`/recipe/${recipe.id}`}
+                style={{
+                  display: 'inline-block',
+                  padding: '8px 16px',
+                  backgroundColor: '#007bff',
+                  color: 'white',
+                  textDecoration: 'none',
+                  borderRadius: '4px',
+                  fontSize: '14px',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#0056b3'}
+                onMouseOut={(e) => e.target.style.backgroundColor = '#007bff'}
+              >
+                View Details →
+              </Link>
+              <button
+                onClick={() => handleToggleFavorite(recipe.id)}
+                style={{
+                  background: 'none',
+                  border: 'none',
+                  fontSize: '20px',
+                  cursor: 'pointer',
+                  padding: '5px',
+                  borderRadius: '50%',
+                  width: '35px',
+                  height: '35px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  transition: 'background-color 0.2s'
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = '#f8f9fa'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}
+                title={favorites.includes(recipe.id) ? 'Remove from favorites' : 'Add to favorites'}
+              >
+                {favorites.includes(recipe.id) ? '❤️' : '🤍'}
+              </button>
+            </div>
           </div>
         ))
       )}

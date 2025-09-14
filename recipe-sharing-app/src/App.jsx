@@ -4,6 +4,8 @@ import RecipeList from './components/RecipeList'
 import AddRecipeForm from './components/AddRecipeForm'
 import RecipeDetails from './components/RecipeDetails'
 import SearchBar from './components/SearchBar'
+import FavoritesList from './components/FavoritesList'
+import RecommendationsList from './components/RecommendationsList'
 
 function App() {
   return (
@@ -18,15 +20,37 @@ function App() {
           <Route path="/" element={
             <main style={{ padding: '20px' }}>
               <SearchBar />
-              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-                <div style={{ flex: '1', minWidth: '300px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr 1fr', gap: '20px', marginTop: '20px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                   <AddRecipeForm />
+                  <FavoritesList />
                 </div>
                 
-                <div style={{ flex: '2', minWidth: '400px' }}>
+                <div>
                   <RecipeList />
                 </div>
+                
+                <div>
+                  <RecommendationsList />
+                </div>
               </div>
+              
+              {/* Mobile responsive layout */}
+              <style jsx>{`
+                @media (max-width: 1200px) {
+                  .grid-container {
+                    grid-template-columns: 1fr 1fr !important;
+                  }
+                  .recommendations-column {
+                    grid-column: 1 / -1;
+                  }
+                }
+                @media (max-width: 768px) {
+                  .grid-container {
+                    grid-template-columns: 1fr !important;
+                  }
+                }
+              `}</style>
             </main>
           } />
           <Route path="/recipe/:id" element={<RecipeDetails />} />
