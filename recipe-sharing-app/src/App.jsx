@@ -3,6 +3,7 @@ import './App.css'
 import RecipeList from './components/RecipeList'
 import AddRecipeForm from './components/AddRecipeForm'
 import RecipeDetails from './components/RecipeDetails'
+import SearchBar from './components/SearchBar'
 
 function App() {
   return (
@@ -15,13 +16,16 @@ function App() {
         
         <Routes>
           <Route path="/" element={
-            <main style={{ display: 'flex', gap: '20px', padding: '20px', flexWrap: 'wrap' }}>
-              <div style={{ flex: '1', minWidth: '300px' }}>
-                <AddRecipeForm />
-              </div>
-              
-              <div style={{ flex: '2', minWidth: '400px' }}>
-                <RecipeList />
+            <main style={{ padding: '20px' }}>
+              <SearchBar />
+              <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1', minWidth: '300px' }}>
+                  <AddRecipeForm />
+                </div>
+                
+                <div style={{ flex: '2', minWidth: '400px' }}>
+                  <RecipeList />
+                </div>
               </div>
             </main>
           } />

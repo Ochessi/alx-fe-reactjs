@@ -1,16 +1,48 @@
 import { Link } from 'react-router-dom';
+import { useEffect } from 'react';
 import useRecipeStore from './recipeStore';
 
 const RecipeList = () => {
-  const recipes = useRecipeStore(state => state.recipes);
+  const { filteredRecipes, searchTerm, initializeFilters } = useRecipeStore(state => ({
+    filteredRecipes: state.filteredRecipes,
+    searchTerm: state.searchTerm,
+    initializeFilters: state.initializeFilters
+  }));
+
+  // Initialize filtered recipes on component mount
+  useEffect(() => {
+    initializeFilters();
+  }, [initializeFilters]);
 
   return (
     <div>
-      <h2>Recipe List</h2>
-      {recipes.length === 0 ? (
-        <p>No recipes available. Add some recipes to get started!</p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+        <h2 style={{ margin: 0 }}>Recipe List</h2>
+        {searchTerm && (
+          <span style={{ 
+            fontSize: '14px', 
+            color: '#666',
+            backgroundColor: '#e9ecef',
+            padding: '4px 8px',
+            borderRadius: '4px'
+          }}>
+            {filteredRecipes.length} result{filteredRecipes.length !== 1 ? 's' : ''} for "{searchTerm}"
+          </span>
+        )}
+      </div>
+      
+      {filteredRecipes.length === 0 ? (
+        searchTerm ? (
+          <div style={{ textAlign: 'center', padding: '40px', color: '#666' }}>
+            <p style={{ fontSize: '18px', marginBottom: '10px' }}>🔍 No recipes found</p>
+            <p>No recipes match your search for "{searchTerm}"</p>
+            <p style={{ fontSize: '14px' }}>Try searching for different keywords or check your spelling.</p>
+          </div>
+        ) : (
+          <p>No recipes available. Add some recipes to get started!</p>
+        )
       ) : (
-        recipes.map(recipe => (
+        filteredRecipes.map(recipe => (
           <div key={recipe.id} style={{ 
             border: '1px solid #ddd', 
             margin: '10px 0', 
