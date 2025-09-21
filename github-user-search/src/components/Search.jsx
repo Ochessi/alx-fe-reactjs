@@ -9,6 +9,7 @@ const Search = () => {
   });
   const [loading, setLoading] = useState(false);
   const [searchResults, setSearchResults] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [error, setError] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -17,6 +18,24 @@ const Search = () => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Function to fetch individual user data
+  const fetchUserData = async (username) => {
+    setLoading(true);
+    setError('');
+    setUserData(null);
+    setSearchResults(null);
+    
+    const result = await githubService.fetchUserData(username);
+    
+    if (result.success) {
+      setUserData(result.data);
+    } else {
+      setError(result.error);
+    }
+    
+    setLoading(false);
   };
 
   const handleSubmit = async (e) => {
@@ -28,9 +47,17 @@ const Search = () => {
       return;
     }
     
+    // If only username is provided and no other criteria, use simple user search
+    if (searchParams.username.trim() && !searchParams.location.trim() && !searchParams.minRepos.trim()) {
+      await fetchUserData(searchParams.username.trim());
+      return;
+    }
+    
+    // Otherwise use advanced search
     setLoading(true);
     setError('');
     setSearchResults(null);
+    setUserData(null);
     setCurrentPage(1);
     
     const result = await githubService.searchUsers({
@@ -231,6 +258,44 @@ const Search = () => {
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Individual User Data Display */}
+      {userData && !loading && (
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="flex items-center space-x-6">
+            <img 
+              src={userData.avatar_url} 
+              alt={`${userData.login}'s avatar`}
+              className="w-32 h-32 rounded-full border-4 border-gray-200"
+            />
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold text-gray-900">
+                {userData.name || userData.login}
+              </h2>
+              <p className="text-lg text-gray-600">@{userData.login}</p>
+              {userData.bio && (
+                <p className="text-gray-700 mt-2">{userData.bio}</p>
+              )}
+              {userData.location && (
+                <p className="text-gray-600 mt-1">📍 {userData.location}</p>
+              )}
+              <div className="flex space-x-6 mt-4 text-sm text-gray-600">
+                <span><strong>{userData.public_repos}</strong> repositories</span>
+                <span><strong>{userData.followers}</strong> followers</span>
+                <span><strong>{userData.following}</strong> following</span>
+              </div>
+              <a 
+                href={userData.html_url} 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="inline-block mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md transition duration-200"
+              >
+                View GitHub Profile
+              </a>
+            </div>
+          </div>
         </div>
       )}
 
