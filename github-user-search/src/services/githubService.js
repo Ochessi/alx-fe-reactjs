@@ -125,6 +125,8 @@ export const githubService = {
         query = 'type:user';
       }
 
+      // Advanced API integration using full GitHub Search API endpoint
+      // https://api.github.com/search/users?q={query}&page={page}&per_page={perPage}
       const response = await apiClient.get('/search/users', {
         params: {
           q: query.trim(),
@@ -142,6 +144,53 @@ export const githubService = {
           totalCount: response.data.total_count,
           hasNextPage: response.data.items.length === perPage,
           currentPage: page
+        }
+      };
+    } catch (error) {
+      if (error.response?.status === 403) {
+        return {
+          success: false,
+          error: 'API rate limit exceeded. Please try again later or add a GitHub API key.'
+        };
+      }
+      if (error.response?.status === 422) {
+        return {
+          success: false,
+          error: 'Invalid search query. Please check your search criteria.'
+        };
+      }
+      return {
+        success: false,
+        error: 'An error occurred while searching for users'
+      };
+    }
+  },
+
+  // Advanced search with explicit URL construction for complex queries
+  searchUsersAdvanced: async (searchQuery, options = {}) => {
+    try {
+      const { page = 1, perPage = 30, sort = 'repositories', order = 'desc' } = options;
+      
+      // Construct full URL: https://api.github.com/search/users?q={searchQuery}
+      const searchUrl = `https://api.github.com/search/users?q=${encodeURIComponent(searchQuery)}&page=${page}&per_page=${perPage}&sort=${sort}&order=${order}`;
+      
+      const response = await axios.get(searchUrl, {
+        headers: {
+          'Accept': 'application/vnd.github.v3+json',
+          'User-Agent': 'GitHub-User-Search-App',
+          ...(GITHUB_API_KEY && { 'Authorization': `token ${GITHUB_API_KEY}` })
+        },
+        timeout: 10000
+      });
+
+      return {
+        success: true,
+        data: {
+          users: response.data.items,
+          totalCount: response.data.total_count,
+          hasNextPage: response.data.items.length === perPage,
+          currentPage: page,
+          searchUrl: searchUrl // Include the actual URL used for debugging
         }
       };
     } catch (error) {
